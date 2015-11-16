@@ -7,7 +7,7 @@ import { Router, Route, Link, IndexRoute } from 'react-router'
 class App extends React.Component {
   render(){
     return (
-      <div>
+      <div style={{margin: 10}}>
       <div>
         <nav className="navbar navbar-default">
           <div className="container-fluid">

@@ -6,59 +6,40 @@ import HueApi from '../../Models/HueSetup';
 import SetName from './SetAppName';
 import FindBridge from './FindBridge';
 import AuthorizeBridge from './AuthorizeBridge';
-import AppState from '../../Models/AppState';
+import configStore from '../../Stores/ConfigStore';
 
 class Config extends React.Component {
   constructor(props){
     super(props);
-    this.state = {
-      app_name: null,
-      bridge: null,
-      username: null,
-      show_findBridge: false,
-      show_authorizeBridge: false,
-      complete: false
-    };
+    this.state = configStore.getState();
   }
-  setAppName(app_name){
-    this.setState({app_name:app_name, show_findBridge: true});
+  componentWillMount(){
+    this.unsubscribe = configStore.subscribe(() => {
+      var storeState = configStore.getState();
+      this.setState(storeState);
+      if(storeState.complete) return this.completeSetup();
+    })
   }
-  setAppBridge(bridge){
-    this.setState({bridge: bridge, show_authorizeBridge: true});
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
 
-  }
-  setBridgeUsername(username){
-    this.setState({username: username});
-    this.completeSetup();
-  }
   completeSetup(){
-    var sharedAppState = new AppState();
-    sharedAppState.username = this.state.username;
-    sharedAppState.bridge_ip = this.state.bridge.internalipaddress;
-    sharedAppState.bridge_id = this.state.bridge.id;
-    sharedAppState.app_name = this.state.app_name;
-    this.setState({sharedAppState: sharedAppState});
-    this.props.history.pushState(sharedAppState, "/control");
+   var nextState = {
+     username: this.state.username,
+     bridge_ip: this.state.bridge.internalipaddress,
+     bridge_id: this.state.bridge.id,
+     app_name: this.state.app_name};
+    this.props.history.pushState(nextState, "/control");
   }
 
   render(){
-    var setName =  <SetName setAppName={this.setAppName.bind(this)}/>
-    var findBridge = (this.state.show_findBridge) ?
-      <FindBridge app_name={this.state.app_name}
-                  setAppBridge={this.setAppBridge.bind(this)}/>
-      : null;
-    var authorizeBridge = (this.state.show_authorizeBridge)
-      ? <AuthorizeBridge
-          setBridgeUsername={this.setBridgeUsername.bind(this)}
-          bridge={this.state.bridge}
-          app_name={this.state.app_name}/>
-      : null;
     return (
       <div>
         <h2>Configure a Bridge</h2>
-        {setName}
-        {findBridge}
-        {authorizeBridge}
+        <SetName />
+        {(this.state.app_name)? <FindBridge app_name={this.state.app_name} /> : null}
+        {(this.state.bridge)? <AuthorizeBridge app_name={this.state.app_name} bridge={this.state.bridge} /> : null}
       </div>
     )
   }

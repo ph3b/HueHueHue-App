@@ -6,6 +6,7 @@
  */
 import React from 'react';
 import HueApi from '../../Models/HueSetup';
+import configActions from '../../Actions/configActions';
 
 class SetName extends React.Component {
   constructor(props){
@@ -15,7 +16,7 @@ class SetName extends React.Component {
   setNameFromAppNameField(){
     let app_name = this.refs.appName.value;
     if(app_name === "") return;
-    this.props.setAppName(app_name);
+    configActions.setAppName(app_name);
     this.setState({complete: true})
   }
 

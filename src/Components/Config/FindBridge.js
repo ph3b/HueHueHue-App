@@ -9,6 +9,7 @@
  */
 import React from 'react';
 import HueApi from '../../Models/HueSetup';
+import configActions from '../../Actions/configActions';
 
 class FindBridge extends React.Component {
   constructor(props) {
@@ -30,28 +31,27 @@ class FindBridge extends React.Component {
   selectBridge(bridge){
     this.state.bridges.forEach((bridgeInState) => bridgeInState.clicked = bridgeInState.id == bridge.id);
     this.setState({bridges: this.state.bridges, complete: true});
-    this.props.setAppBridge(bridge);
+    configActions.setBridge(bridge);
   }
   render(){
-    var bridges = this.state.bridges.map((bridge, id) => {
-      var bridgeLine;
-      if(bridge.clicked){
-        bridgeLine = <a className="list-group-item" key={bridge.id} disabled="disabled">
-            #{id +1} {bridge.id} <span className="glyphicon glyphicon-ok pull-right" aria-hidden="true" />
-        </a>
-      }
-      else {
-        bridgeLine = <a onClick={this.selectBridge.bind(this, bridge)} className="list-group-item" key={bridge.id}>#{id +1} {bridge.id}</a>
-      }
-      return bridgeLine;
-    });
-
     return (
       <div className="panel panel-default">
         <div className="panel-body">
           <h4>Select a bridge: </h4>
           <ul className="list-group">
-            {bridges}
+            {this.state.bridges.map((bridge, id) => {
+              var bridgeLine;
+              if(bridge.clicked){
+                return <a className="list-group-item"
+                          key={bridge.id}
+                          disabled="disabled">
+                                  #{id +1} {bridge.id}
+                  <span className="glyphicon glyphicon-ok pull-right" aria-hidden="true" /></a>
+              }
+              return <a onClick={this.selectBridge.bind(this, bridge)}
+                        className="list-group-item"
+                        key={bridge.id}>#{id +1} {bridge.id}</a>
+            })}
           </ul>
         </div>
       </div>
